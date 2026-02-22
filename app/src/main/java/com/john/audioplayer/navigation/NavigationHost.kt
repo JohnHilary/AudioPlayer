@@ -27,17 +27,7 @@ import kotlinx.serialization.Serializable
 @Composable
 fun NavigationHost() {
     val navController = rememberNavController()
-    Scaffold(modifier = Modifier.fillMaxSize(),
-         topBar = {
-             TopAppBar(title = {
-                 Text(
-                     "Simple Audio Player",
-                     style = MaterialTheme.typography.titleLarge,
-                     fontWeight = FontWeight.Bold
-                 )
-             })
-         }
-        ) {
+    Scaffold(modifier = Modifier.fillMaxSize()) {
         NavHost(
             navController = navController,
             startDestination = PlayerScreen,
@@ -47,17 +37,9 @@ fun NavigationHost() {
             composable<PlayerScreen> {
                 val viewModel = hiltViewModel<AudioPlayerViewModel>()
                 val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-                val lifecycleOwner = LocalLifecycleOwner.current
-
-                DisposableEffect(lifecycleOwner) {
-                    lifecycleOwner.lifecycle.addObserver(viewModel)
-                    onDispose {
-                        lifecycleOwner.lifecycle.removeObserver(viewModel)
-                    }
-                }
                 PlayerScreen(
-                    onEvent = {
-                        viewModel.onEvent(it)
+                    onEvent = { event ->
+                        viewModel.onEvent(event)
                     },
                     uiState = uiState.value,
                     modifier = Modifier.padding(16.dp)

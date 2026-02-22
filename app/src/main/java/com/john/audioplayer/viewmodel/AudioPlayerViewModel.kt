@@ -1,7 +1,5 @@
 package com.john.audioplayer.viewmodel
 
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.john.audioplayer.audio.AudioPlayerManager
@@ -19,7 +17,7 @@ import javax.inject.Inject
 class AudioPlayerViewModel @Inject constructor(
     private val audioPlayerManager: AudioPlayerManager,
     private val _uiState: MutableStateFlow<AudioPlayerScreenUiState>
-) : ViewModel(), DefaultLifecycleObserver {
+) : ViewModel() {
 
     val uiState = _uiState.asStateFlow()
     private var currentIndex = 0
@@ -85,11 +83,16 @@ class AudioPlayerViewModel @Inject constructor(
     private fun startProgressUpdater() {
         viewModelScope.launch {
             while (true) {
+                val currentPosition = audioPlayerManager.currentPosition()
+                val duration = _uiState.value.duration
                 _uiState.update {
                     it.copy(
                         progress = audioPlayerManager.currentPosition(),
                         waveForm = audioPlayerManager.getWaveform().toList()
                     )
+                }
+                if (duration in 1..currentPosition) {
+                    onEvent(AudioPlayerEvent.PlayNext)
                 }
                 delay(300)
             }
@@ -130,12 +133,6 @@ class AudioPlayerViewModel @Inject constructor(
         audioPlayerManager.release()
     }
 
-    override fun onStop(owner: LifecycleOwner) {
-        super.onStop(owner)
-        if (audioPlayerManager.isPlaying()) {
-            audioPlayerManager.pause()
-            _uiState.update { it.copy(isPlaying = false) }
-        }
-    }
+
 }
 
