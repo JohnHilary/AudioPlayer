@@ -2,4 +2,9 @@
 <resources>
 
     <style name="Theme.AudioPlayer" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.AudioPlayer.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_app_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.AudioPlayer</item>
+    </style>
 </resources>

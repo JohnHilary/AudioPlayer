@@ -10,6 +10,9 @@ sealed interface AudioPlayerEvent {
 
     object StartProgressUpdater : AudioPlayerEvent
 
-    data object PlayPause: AudioPlayerEvent
+    data object PlayPause : AudioPlayerEvent
+
+    data object PlayNext : AudioPlayerEvent
+    data object PlayPrevious : AudioPlayerEvent
 
 }

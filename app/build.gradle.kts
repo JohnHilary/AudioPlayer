@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias (libs.plugins.ksp)
     alias (libs.plugins.hilt)
+    kotlin("plugin.serialization")
 }
 
 android {
@@ -60,9 +61,12 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation("com.github.lincollincol:compose-audiowaveform:1.1.1")
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    val nav_version = "2.9.7"
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

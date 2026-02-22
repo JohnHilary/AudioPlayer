@@ -1,9 +1,12 @@
 package com.john.audioplayer.audio
 
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.audiofx.Equalizer
 import android.media.audiofx.Visualizer
+import com.john.audioplayer.model.AudioInfo
 import javax.inject.Inject
 
 class AudioPlayerManager @Inject constructor(val context: Context) {
@@ -64,7 +67,6 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
     fun play() = mediaPlayer?.start()
     fun pause() = mediaPlayer?.pause()
     fun isPlaying() = mediaPlayer?.isPlaying ?: false
-    fun duration() = mediaPlayer?.duration ?: 0
     fun currentPosition() = mediaPlayer?.currentPosition ?: 0
     fun seekTo(pos: Int) = mediaPlayer?.seekTo(pos)
 
@@ -93,4 +95,18 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
         visualizer?.release()
         visualizer = null
     }
+
+    fun getAudioInfo(fileName: String): AudioInfo {
+        val afd = context.assets.openFd(fileName)
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+
+        val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+        val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+        val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+        val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: 0
+        val albumArt = retriever.embeddedPicture?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+        return AudioInfo(title, artist, album,  duration,albumArt)
+    }
+
 }

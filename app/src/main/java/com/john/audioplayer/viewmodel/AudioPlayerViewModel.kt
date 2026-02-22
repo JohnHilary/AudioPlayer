@@ -4,19 +4,15 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.john.audioplayer.view.events.AudioPlayerEvent
 import com.john.audioplayer.audio.AudioPlayerManager
 import com.john.audioplayer.state.AudioPlayerScreenUiState
+import com.john.audioplayer.view.events.AudioPlayerEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,22 +22,46 @@ class AudioPlayerViewModel @Inject constructor(
 ) : ViewModel(), DefaultLifecycleObserver {
 
     val uiState = _uiState.asStateFlow()
+    private var currentIndex = 0
+    private val playlist: List<String> = listOf("kgf.mp3","audio.mp3", "music.mp3")
 
     init {
-        loadSong("music.mp3")
+        loadSong(playlist[currentIndex])
         startProgressUpdater()
     }
 
+    private fun playNext() {
+        currentIndex = (currentIndex + 1) % playlist.size
+        val nextSong = playlist[currentIndex]
+        loadSong(nextSong)
+        audioPlayerManager.play()
+        _uiState.update { it.copy(isPlaying = true, progress = 0) }
+    }
+
+    private fun playPrevious() {
+        currentIndex = if (currentIndex - 1 < 0) playlist.size - 1 else currentIndex - 1
+        val prevSong = playlist[currentIndex]
+        loadSong(prevSong)
+        audioPlayerManager.play()
+        _uiState.update { it.copy(isPlaying = true, progress = 0) }
+    }
+
     private fun loadSong(name: String) {
+        val audioInfo = audioPlayerManager.getAudioInfo(name)
         audioPlayerManager.load(name)
-        _uiState.update {
-            it.copy(duration = audioPlayerManager.duration())
-        }
         val bandCount = audioPlayerManager.getBandCount()
         val initialBands = List(bandCount.toInt()) { 0f }
         _uiState.update {
-            it.copy(bandLevels = initialBands)
+            it.copy(
+                duration = audioInfo.duration,
+                title = audioInfo.title,
+                artist = audioInfo.artist,
+                album = audioInfo.album,
+                albumArt = audioInfo.albumArt,
+                bandLevels = initialBands
+            )
         }
+
     }
 
     private fun playPause() {
@@ -98,6 +118,9 @@ class AudioPlayerViewModel @Inject constructor(
                 playPause()
 
             }
+
+            AudioPlayerEvent.PlayNext -> playNext()
+            AudioPlayerEvent.PlayPrevious -> playPrevious()
         }
     }
 
