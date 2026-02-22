@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,7 +77,10 @@ fun PlayerScreen(
         Text(
             text = uiState.title ?: "Untitled Audio",
             fontSize = 24.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+
         )
         Spacer(Modifier.height(8.dp))
         HorizontalDivider(modifier = Modifier.height(2.dp))
@@ -136,7 +140,7 @@ fun PlayerScreen(
             IconButton(
                 modifier = Modifier
                     .background(color = MaterialTheme.colorScheme.primary, CircleShape)
-                    .size(120.dp)
+                    .size(100.dp)
                     .padding(16.dp),
                 onClick = { onEvent(AudioPlayerEvent.PlayPause) }
             ) {

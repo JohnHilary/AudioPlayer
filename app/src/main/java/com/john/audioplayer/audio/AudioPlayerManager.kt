@@ -6,6 +6,7 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.audiofx.Equalizer
 import android.media.audiofx.Visualizer
+import android.util.Log
 import com.john.audioplayer.model.AudioInfo
 import javax.inject.Inject
 
@@ -42,13 +43,14 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
     }
 
     private fun setupEqualizer() {
-        mediaPlayer?.let {
-            equalizer = Equalizer(0, it.audioSessionId).apply {
-                enabled = true
+        mediaPlayer?.let { player ->
+            try {
+                equalizer = Equalizer(0, player.audioSessionId).apply { enabled = true }
+            } catch (e: Exception) {
+                Log.e("AudioPlayer", "Cannot initialize equalizer", e)
             }
         }
     }
-
     private fun setupVisualizer() {
         mediaPlayer?.let { mp ->
             try {
