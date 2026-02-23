@@ -50,10 +50,12 @@ class AudioPlayerViewModel @Inject constructor(
         audioPlayerManager.load(name)
         val bandCount = audioPlayerManager.getBandCount()
         val initialBands = List(bandCount.toInt()) { 0f }
+        val bandLevels = audioPlayerManager.getBandRange()
         _uiState.update {
             it.copy(
                 audioInfo = audioInfo,
-                bandLevels = initialBands
+                bandLevels = initialBands,
+                bandRange = bandLevels.toList()
             )
         }
 

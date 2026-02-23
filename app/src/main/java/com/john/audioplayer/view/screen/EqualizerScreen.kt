@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
@@ -24,6 +25,7 @@ import com.john.audioplayer.state.AudioPlayerScreenUiState
 @Composable
 fun EqualizerUI(
     bands: List<Float>,
+    range: List<Short>,
     onChange: (Int, Float) -> Unit
 ) {
     val labels = listOf("60Hz", "230Hz", "910Hz", "3kHz", "14kHz")
@@ -35,44 +37,48 @@ fun EqualizerUI(
         verticalAlignment = Alignment.Bottom
     ) {
         bands.forEachIndexed { index, value ->
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            key(index) {
 
-                Text(
-                    text = labels[index],
-                    fontSize = 12.sp
-                )
-                Spacer(Modifier.height(8.dp))
-
-                Box(
+                Column(
                     modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Slider(
-                        value = value,
-                        onValueChange = { onChange(index, it) },
-                        valueRange = -1500f..1500f,
-                        modifier = Modifier
-                            .graphicsLayer {
-                                rotationZ = 270f
-                                transformOrigin = TransformOrigin(0f, 0f)
-                            }
-                            .layout { measurable, constraints ->
-                                val placeable = measurable.measure(
-                                    Constraints(
-                                        minWidth = constraints.minHeight,
-                                        maxWidth = constraints.maxHeight,
-                                        minHeight = constraints.minWidth,
-                                        maxHeight = constraints.maxHeight
-                                    )
-                                )
-                                layout(placeable.height, placeable.width) {
-                                    placeable.place(-placeable.width, 0)
-                                }
-                            }
+                    val label = labels.getOrElse(index) { "Band ${index + 1}" }
+
+                    Text(
+                        text = label,
+                        fontSize = 12.sp
                     )
+                    Spacer(Modifier.height(8.dp))
+
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Slider(
+                            value = value,
+                            onValueChange = { onChange(index, it) },
+                            valueRange = range[0].toFloat()..range[1].toFloat(),
+                            modifier = Modifier
+                                .graphicsLayer {
+                                    rotationZ = 270f
+                                    transformOrigin = TransformOrigin(0f, 0f)
+                                }
+                                .layout { measurable, constraints ->
+                                    val placeable = measurable.measure(
+                                        Constraints(
+                                            minWidth = constraints.minHeight,
+                                            maxWidth = constraints.maxHeight,
+                                            minHeight = constraints.minWidth,
+                                            maxHeight = constraints.maxHeight
+                                        )
+                                    )
+                                    layout(placeable.height, placeable.width) {
+                                        placeable.place(-placeable.width, 0)
+                                    }
+                                }
+                        )
+                    }
                 }
             }
         }
@@ -90,6 +96,7 @@ fun EqualizerUIPreview() {
 
     EqualizerUI(
         bands = audioPlayerScreenUiState.bandLevels,
+        range = emptyList(),
         onChange = { p0: Int, p2: Float ->
         }
     )
