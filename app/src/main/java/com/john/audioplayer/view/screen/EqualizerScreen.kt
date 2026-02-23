@@ -84,7 +84,6 @@ fun EqualizerUI(
 fun EqualizerUIPreview() {
     val audioPlayerScreenUiState = AudioPlayerScreenUiState(
         progress = 30,
-        duration = 120,
         isPlaying = true,
         waveForm = List(16) { 1 },
         bandLevels = List(5) { 0.5f })

@@ -56,6 +56,7 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
             try {
                 if (mp.audioSessionId != 0) {
                     visualizer = Visualizer(mp.audioSessionId).apply {
+                        enabled = false
                         captureSize = Visualizer.getCaptureSizeRange()[1]
                         enabled = true
                     }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +25,7 @@ class AudioPlayerViewModel @Inject constructor(
     private val playlist: List<String> = listOf("kgf.mp3","audio.mp3", "music.mp3")
 
     init {
-        loadSong(playlist[currentIndex])
+        loadSong(name = playlist[currentIndex])
         startProgressUpdater()
     }
 
@@ -51,11 +52,7 @@ class AudioPlayerViewModel @Inject constructor(
         val initialBands = List(bandCount.toInt()) { 0f }
         _uiState.update {
             it.copy(
-                duration = audioInfo.duration,
-                title = audioInfo.title,
-                artist = audioInfo.artist,
-                album = audioInfo.album,
-                albumArt = audioInfo.albumArt,
+                audioInfo = audioInfo,
                 bandLevels = initialBands
             )
         }
@@ -82,13 +79,14 @@ class AudioPlayerViewModel @Inject constructor(
 
     private fun startProgressUpdater() {
         viewModelScope.launch {
-            while (true) {
+            while (isActive) {
                 val currentPosition = audioPlayerManager.currentPosition()
-                val duration = _uiState.value.duration
+                val duration = _uiState.value.audioInfo?.duration
                 _uiState.update {
                     it.copy(
                         progress = audioPlayerManager.currentPosition(),
-                        waveForm = audioPlayerManager.getWaveform().toList()
+                        waveForm = if (audioPlayerManager.isPlaying()) audioPlayerManager.getWaveform()
+                            .toList() else it.waveForm
                     )
                 }
                 if (duration in 1..currentPosition) {

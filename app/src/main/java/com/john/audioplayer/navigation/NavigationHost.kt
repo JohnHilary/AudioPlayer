@@ -42,7 +42,6 @@ fun NavigationHost() {
                         viewModel.onEvent(event)
                     },
                     uiState = uiState.value,
-                    modifier = Modifier.padding(16.dp)
                 )
             }
         }
