@@ -22,7 +22,7 @@ class AudioPlayerViewModel @Inject constructor(
 
     val uiState = _uiState.asStateFlow()
     private var currentIndex = 0
-    private val playlist: List<String> = listOf("kgf.mp3","audio.mp3", "music.mp3")
+    private val playlist: List<String> = listOf("kgf.mp3", "audio.mp3", "music.mp3")
 
     init {
         loadSong(name = playlist[currentIndex])
@@ -99,38 +99,24 @@ class AudioPlayerViewModel @Inject constructor(
 
     fun onEvent(audioPlayerEvent: AudioPlayerEvent) {
         when (audioPlayerEvent) {
-            is AudioPlayerEvent.ChangeBand -> {
-                changeBand(index = audioPlayerEvent.index, value = audioPlayerEvent.value)
-            }
+            is AudioPlayerEvent.ChangeBand -> changeBand(
+                index = audioPlayerEvent.index,
+                value = audioPlayerEvent.value
+            )
 
-            is AudioPlayerEvent.LoadSong -> {
-                loadSong(name = audioPlayerEvent.name)
-            }
-
-            is AudioPlayerEvent.SeekTo -> {
-                seekTo(value = audioPlayerEvent.value)
-            }
-
-            AudioPlayerEvent.StartProgressUpdater -> {
-                startProgressUpdater()
-            }
-
-            AudioPlayerEvent.PlayPause -> {
-                playPause()
-
-            }
-
+            is AudioPlayerEvent.LoadSong -> loadSong(name = audioPlayerEvent.name)
+            is AudioPlayerEvent.SeekTo -> seekTo(value = audioPlayerEvent.value)
+            AudioPlayerEvent.StartProgressUpdater -> startProgressUpdater()
+            AudioPlayerEvent.PlayPause -> playPause()
             AudioPlayerEvent.PlayNext -> playNext()
             AudioPlayerEvent.PlayPrevious -> playPrevious()
         }
     }
 
-
     override fun onCleared() {
         super.onCleared()
         audioPlayerManager.release()
     }
-
 
 }
 
