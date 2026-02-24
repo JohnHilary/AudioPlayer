@@ -31,12 +31,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,20 +57,29 @@ import com.john.audioplayer.R
 import com.john.audioplayer.state.AudioPlayerScreenUiState
 import com.john.audioplayer.view.CheckPermission
 import com.john.audioplayer.view.events.AudioPlayerEvent
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
-    onEvent: (AudioPlayerEvent) -> Unit,
+    modifier: Modifier = Modifier,
     uiState: AudioPlayerScreenUiState,
-    modifier: Modifier = Modifier
+    snackbarHostState: SnackbarHostState,
+    onEvent: (AudioPlayerEvent) -> Unit,
 ) {
     var hasAudioPermission by remember { mutableStateOf(false) }
-
+    val coroutineScope = rememberCoroutineScope()
     CheckPermission(
         permission = Manifest.permission.RECORD_AUDIO
     ) { isGranted ->
         hasAudioPermission = isGranted
+        if (isGranted) {
+            onEvent(AudioPlayerEvent.SetupVisualizer)
+        } else {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message = "Permission required to display the visualizer.")
+            }
+        }
     }
 
     val amplitudes by remember(uiState.waveForm) {
@@ -82,7 +93,7 @@ fun PlayerScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -247,6 +258,6 @@ fun PlayerScreenPreview() {
     )
 
     PlayerScreen(
-        onEvent = {}, uiState = audioPlayerScreenUiState
+        onEvent = {}, uiState = audioPlayerScreenUiState, snackbarHostState = SnackbarHostState()
     )
 }

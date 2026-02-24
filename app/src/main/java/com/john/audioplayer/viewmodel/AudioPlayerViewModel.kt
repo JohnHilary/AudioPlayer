@@ -44,6 +44,9 @@ class AudioPlayerViewModel @Inject constructor(
         audioPlayerManager.play()
         _uiState.update { it.copy(isPlaying = true, progress = 0) }
     }
+    private fun setupVisualizer() {
+        audioPlayerManager.setupVisualizer()
+    }
 
     private fun loadSong(name: String) {
         val audioInfo = audioPlayerManager.getAudioInfo(name)
@@ -101,17 +104,14 @@ class AudioPlayerViewModel @Inject constructor(
 
     fun onEvent(audioPlayerEvent: AudioPlayerEvent) {
         when (audioPlayerEvent) {
-            is AudioPlayerEvent.ChangeBand -> changeBand(
-                index = audioPlayerEvent.index,
-                value = audioPlayerEvent.value
-            )
-
+            is AudioPlayerEvent.ChangeBand -> changeBand(index = audioPlayerEvent.index, value = audioPlayerEvent.value)
             is AudioPlayerEvent.LoadSong -> loadSong(name = audioPlayerEvent.name)
             is AudioPlayerEvent.SeekTo -> seekTo(value = audioPlayerEvent.value)
             AudioPlayerEvent.StartProgressUpdater -> startProgressUpdater()
             AudioPlayerEvent.PlayPause -> playPause()
             AudioPlayerEvent.PlayNext -> playNext()
             AudioPlayerEvent.PlayPrevious -> playPrevious()
+            AudioPlayerEvent.SetupVisualizer -> setupVisualizer()
         }
     }
 

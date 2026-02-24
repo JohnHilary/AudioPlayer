@@ -15,4 +15,6 @@ sealed interface AudioPlayerEvent {
     data object PlayNext : AudioPlayerEvent
     data object PlayPrevious : AudioPlayerEvent
 
+    data object SetupVisualizer : AudioPlayerEvent
+
 }

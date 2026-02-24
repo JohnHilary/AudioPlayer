@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -20,7 +22,10 @@ import kotlinx.serialization.Serializable
 @Composable
 fun NavigationHost() {
     val navController = rememberNavController()
-    Scaffold(modifier = Modifier.fillMaxSize()) {
+    val snackbarHostState = SnackbarHostState()
+    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
+        SnackbarHost(snackbarHostState)
+    }) {
         NavHost(
             navController = navController,
             startDestination = PlayerScreen,
@@ -35,6 +40,7 @@ fun NavigationHost() {
                         viewModel.onEvent(event)
                     },
                     uiState = uiState.value,
+                    snackbarHostState = snackbarHostState
                 )
             }
         }

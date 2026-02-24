@@ -16,12 +16,6 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
     private var equalizer: Equalizer? = null
     private var visualizer: Visualizer? = null
 
-    private var onCompletionCallback: (() -> Unit)? = null
-
-    fun setOnCompletionListener(callback: () -> Unit) {
-        onCompletionCallback = callback
-    }
-
 
     fun load(fileName: String) {
         release()
@@ -31,15 +25,10 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
             setOnPreparedListener {
                 start()
                 setupEqualizer()
-                setupVisualizer()
-            }
-            setOnCompletionListener {
-                onCompletionCallback?.invoke()
             }
             prepareAsync()
         }
         setupEqualizer()
-        setupVisualizer()
     }
 
     private fun setupEqualizer() {
@@ -51,7 +40,7 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
             }
         }
     }
-    private fun setupVisualizer() {
+     fun setupVisualizer() {
         mediaPlayer?.let { mp ->
             try {
                 if (mp.audioSessionId != 0) {
