@@ -25,10 +25,13 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
             setOnPreparedListener {
                 start()
                 setupEqualizer()
+                setupVisualizer()
+
             }
             prepareAsync()
         }
         setupEqualizer()
+        setupVisualizer()
     }
 
     private fun setupEqualizer() {
