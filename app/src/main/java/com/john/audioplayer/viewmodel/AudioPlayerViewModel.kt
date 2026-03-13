@@ -17,9 +17,9 @@ import javax.inject.Inject
 @HiltViewModel
 class AudioPlayerViewModel @Inject constructor(
     private val audioPlayerManager: AudioPlayerManager,
-    private val _uiState: MutableStateFlow<AudioPlayerScreenUiState>
 ) : ViewModel() {
 
+    private val _uiState = MutableStateFlow(AudioPlayerScreenUiState())
     val uiState = _uiState.asStateFlow()
     private var currentIndex = 0
     private val playlist: List<String> = listOf("kgf.mp3", "audio.mp3", "music.mp3")
