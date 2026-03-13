@@ -12,4 +12,4 @@ Tech Stack:
 - Kotlin
 - Jetpack Compose
 - MediaPlayer
-- MVVM Architecture
+- MVI Architecture
