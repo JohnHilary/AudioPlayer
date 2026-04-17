@@ -1,8 +1,10 @@
 package com.john.audioplayer.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.john.audioplayer.audio.AudioPlayerManager
+import com.john.audioplayer.audio.FileType
 import com.john.audioplayer.state.AudioPlayerScreenUiState
 import com.john.audioplayer.view.events.AudioPlayerEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,10 +25,10 @@ class AudioPlayerViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
     private var currentIndex = 0
     private val playlist: List<String> = listOf("kgf.mp3", "audio.mp3", "music.mp3")
+    private var currentUri: String? = null
 
     init {
-        loadSong(name = playlist[currentIndex])
-        startProgressUpdater()
+
     }
 
     private fun playNext() {
@@ -51,6 +53,22 @@ class AudioPlayerViewModel @Inject constructor(
     private fun loadSong(name: String) {
         val audioInfo = audioPlayerManager.getAudioInfo(name)
         audioPlayerManager.load(name)
+        val bandCount = audioPlayerManager.getBandCount()
+        val initialBands = List(bandCount.toInt()) { 0f }
+        val bandLevels = audioPlayerManager.getBandRange()
+        _uiState.update {
+            it.copy(
+                audioInfo = audioInfo,
+                bandLevels = initialBands,
+                bandRange = bandLevels.toList()
+            )
+        }
+
+    }
+
+    private fun loadSongUri(uri: Uri) {
+        val audioInfo = audioPlayerManager.getAudioInfoFromUri(uri)
+        audioPlayerManager.loadFromUri(uri)
         val bandCount = audioPlayerManager.getBandCount()
         val initialBands = List(bandCount.toInt()) { 0f }
         val bandLevels = audioPlayerManager.getBandRange()
@@ -104,8 +122,18 @@ class AudioPlayerViewModel @Inject constructor(
 
     fun onEvent(audioPlayerEvent: AudioPlayerEvent) {
         when (audioPlayerEvent) {
-            is AudioPlayerEvent.ChangeBand -> changeBand(index = audioPlayerEvent.index, value = audioPlayerEvent.value)
-            is AudioPlayerEvent.LoadSong -> loadSong(name = audioPlayerEvent.name)
+            is AudioPlayerEvent.ChangeBand -> changeBand(
+                index = audioPlayerEvent.index,
+                value = audioPlayerEvent.value
+            )
+
+            is AudioPlayerEvent.LoadSong -> {
+                when (audioPlayerEvent.fileType) {
+                    is FileType.ASSET -> loadSong(name = audioPlayerEvent.fileType.file)
+                    is FileType.URI -> loadSongUri(uri = audioPlayerEvent.fileType.file)
+                }
+                onEvent(AudioPlayerEvent.StartProgressUpdater)
+            }
             is AudioPlayerEvent.SeekTo -> seekTo(value = audioPlayerEvent.value)
             AudioPlayerEvent.StartProgressUpdater -> startProgressUpdater()
             AudioPlayerEvent.PlayPause -> playPause()

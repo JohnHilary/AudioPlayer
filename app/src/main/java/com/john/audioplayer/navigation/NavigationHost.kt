@@ -20,7 +20,7 @@ import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationHost() {
+fun NavigationHost(viewModel: AudioPlayerViewModel) {
     val navController = rememberNavController()
     val snackbarHostState = SnackbarHostState()
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
@@ -33,7 +33,6 @@ fun NavigationHost() {
         ) {
 
             composable<PlayerScreen> {
-                val viewModel = hiltViewModel<AudioPlayerViewModel>()
                 val uiState = viewModel.uiState.collectAsStateWithLifecycle()
                 PlayerScreen(
                     onEvent = { event ->

@@ -1,8 +1,10 @@
 package com.john.audioplayer.view.events
 
+import com.john.audioplayer.audio.FileType
+
 sealed interface AudioPlayerEvent {
 
-    data class LoadSong(val name: String) : AudioPlayerEvent
+    data class LoadSong(val fileType: FileType) : AudioPlayerEvent
 
     data class SeekTo(val value: Float) : AudioPlayerEvent
 

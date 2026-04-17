@@ -6,6 +6,7 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.audiofx.Equalizer
 import android.media.audiofx.Visualizer
+import android.net.Uri
 import android.util.Log
 import com.john.audioplayer.model.AudioInfo
 import javax.inject.Inject
@@ -32,6 +33,19 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
         }
         setupEqualizer()
         setupVisualizer()
+    }
+
+    fun loadFromUri(uri: Uri) {
+        release()
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(context, uri)
+            setOnPreparedListener {
+                start()
+                setupEqualizer()
+                setupVisualizer()
+            }
+            prepareAsync()
+        }
     }
 
     private fun setupEqualizer() {
@@ -102,6 +116,34 @@ class AudioPlayerManager @Inject constructor(val context: Context) {
         val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: 0
         val albumArt = retriever.embeddedPicture?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
         return AudioInfo(title, artist, album,  duration,albumArt)
+    }
+    fun getAudioInfoFromUri(uri: Uri): AudioInfo {
+
+        val retriever = MediaMetadataRetriever()
+
+        try {
+            retriever.setDataSource(context, uri)
+
+            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+
+            val duration = retriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_DURATION
+            )?.toInt() ?: 0
+
+            val albumArt = retriever.embeddedPicture?.let {
+                BitmapFactory.decodeByteArray(it, 0, it.size)
+            }
+
+            return AudioInfo(title, artist, album, duration, albumArt)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return AudioInfo(null, null, null, 0, null)
+        } finally {
+            retriever.release()
+        }
     }
 
 }
