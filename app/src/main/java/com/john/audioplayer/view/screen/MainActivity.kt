@@ -23,7 +23,10 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        handleIntent(intent)
+        if (savedInstanceState == null) {
+            handleIntent(intent)
+        }
+
         setContent {
             AudioPlayerTheme {
                 NavigationHost(viewModel = viewModel)
